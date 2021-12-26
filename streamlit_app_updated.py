@@ -9,6 +9,7 @@ import sqlite3
 import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
+nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 import string
 import re
