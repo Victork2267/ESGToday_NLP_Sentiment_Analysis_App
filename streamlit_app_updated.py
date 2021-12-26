@@ -7,6 +7,7 @@ import sqlite3
 
 ## Data Cleaning
 import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 import string
 import re
