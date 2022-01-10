@@ -7,9 +7,6 @@ import sqlite3
 
 ## Data Cleaning
 import nltk
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 import string
 import re
@@ -179,30 +176,47 @@ if __name__ == "__main__":
 
     ## Get Dropdown options
     list_500 = df["Company"].value_counts().keys().tolist()
-    option = st.selectbox("Select a fortune 500 company to examine",list_500)
+    option1 = st.selectbox("Select the first fortune 500 company to examine",list_500)
+    option2 = st.selectbox("Select the second fortune 500 company to examine",list_500)
     button_option = st.button("Analyse")
     if button_option:
         ## Get information from dataframe and create dataframe in streamlit
-        df = df[df["Company"] == option]
-        st.text("There are {} relvant ESG-Related News Cotent for {}".format(len(df),option))
+        df_option1 = df[df["Company"] == option1]
+        df_option2 = df[df["Company"] == option2]
+        st.text("There are {} relvant ESG-Related News Content for {}".format(len(df_option1),option1))
+        st.text("There are {} relevant ESG-Related News Content for {}".format(len(df_option2), option2))
 
         ## st.table(df.head())
         st.info("Analysing News Content using Vader")
 
         ## Clean the data
-        df["Content_Cleaned"] = df["Content"].apply(lambda x: ' '.join(text_cleaning(x)))
+        df_option1["Content_Cleaned"] = df_option1["Content"].apply(lambda x: ' '.join(text_cleaning(x)))
+        df_option2["Content_Cleaned"] = df_option2["Content"].apply(lambda x: ' '.join(text_cleaning(x)))
         
         ## Get SIA tags
-        tag_sentiment_SIA(df=df)
+        tag_sentiment_SIA(df=df_option1)
+        tag_sentiment_SIA(df=df_option2)
         
         ## Generate Pie/Boxplot of the company's ESG data
-        st.subheader("Propotion of Positive vs Negative ESG-Related News Sentiments for {}".format(option))
-        labels_finalscore = df["Final_Score"].value_counts().keys()
-        values_finalscore = df["Final_Score"].value_counts()
-        #fig = make_subplots(rows=1, cols=2, subplot_titles=("TextBlob", "SIA"), specs=[[{"type": "pie"}, {"type": "box"}]])
+        st.subheader("Propotion of Positive vs Negative ESG-Related News Sentiments for {}".format(option1))
+        labels_finalscore_option1 = df_option1["Final_Score"].value_counts().keys()
+        values_finalscore_option1 = df_option1["Final_Score"].value_counts()
+
+        labels_finalscore_option2 = df_option2["Final_Score"].value_counts().keys()
+        values_finalscore_option2 = df_option2["Final_Score"].value_counts()
+
+        fig = make_subplots(rows=1, cols=2, subplot_titles=(option1, option2), specs=[[{"type": "pie"}, {"type": "pie"}]])
         
         ## Generate Pie Chart
-        fig = go.Figure(data=[go.Pie(labels=labels_finalscore, values=values_finalscore)])
+        fig.add_trace(
+            go.Pie(labels=labels_finalscore_option1, values=values_finalscore_option1),
+            row=1,col=1
+        )
+
+        fig.add_trace(
+            go.Pie(labels=labels_finalscore_option2, values=values_finalscore_option2),
+            row=1, col=2
+        )
 
         fig.update_layout(height=600,width=800)
         st.plotly_chart(fig, use_container_width=True)
@@ -211,14 +225,24 @@ if __name__ == "__main__":
         st.subheader("Statistics on Vader's Sentiment Compound Scoring")
 
         ## Generate Boxplot
-        fig = go.Figure(data=[go.Box(y=df["Compound_Score"].values)])
+        fig = make_subplots(rows=1, cols=2, subplot_titles=(option1, option2))
+        fig.add_trace(
+            go.Box(y=df_option1["Compound_Score"].values),
+            row=1,col=1
+        )
+
+        fig.add_trace(
+            go.Box(y=df_option2["Compound_Score"].values),
+            row=1, col=2
+        )
+
         fig.update_layout(height=600,width=800)
         st.plotly_chart(fig, use_container_width=True)
 
         ## Generate WordClouds
         # Get negative and positive news text from pandas column
-        neg_df = df["Content_Cleaned"][df["Final_Score"] == "negative"]
-        pos_df = df["Content_Cleaned"][df["Final_Score"] == "positive"]
+        neg_df = df_option1["Content_Cleaned"][df_option1["Final_Score"] == "negative"]
+        pos_df = df_option1["Content_Cleaned"][df_option1["Final_Score"] == "positive"]
         st.set_option('deprecation.showPyplotGlobalUse', False)
 
         # Check if there is neg/pos content and generate wordclouds
@@ -226,7 +250,7 @@ if __name__ == "__main__":
             wordcloud_neg = WordCloud().generate("".join(neg_df))
 
             # Display the generated image:
-            st.subheader("Common Words Associated with Negative ESG-Related News Sentiments for {}".format(option))
+            st.subheader("Common Words Associated with Negative ESG-Related News Sentiments for {}".format(option1))
             plt.imshow(wordcloud_neg, interpolation='bilinear')
             plt.axis("off")
             plt.show()
@@ -235,11 +259,8 @@ if __name__ == "__main__":
             wordcloud_pos = WordCloud().generate("".join(pos_df))
 
             # Display the generated image:
-            st.subheader("Common Words Associated with Positive ESG-Related News Sentiments for {}".format(option))
+            st.subheader("Common Words Associated with Positive ESG-Related News Sentiments for {}".format(option1))
             plt.imshow(wordcloud_pos, interpolation='bilinear')
             plt.axis("off")
             plt.show()
             st.pyplot()
-
-        
-
