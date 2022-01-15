@@ -25,6 +25,9 @@ from wordcloud import WordCloud
 ## Streamlit
 import streamlit as st
 
+import nltk
+nltk.download("stopwords")
+
 # Create connection to db_file (Not required now)
 def create_connection(db_file):
     conn = None
