@@ -27,6 +27,7 @@ import streamlit as st
 
 import nltk
 nltk.download("stopwords")
+nltk.download("wordnet")
 
 # Create connection to db_file (Not required now)
 def create_connection(db_file):
