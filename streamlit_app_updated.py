@@ -188,7 +188,7 @@ if __name__ == "__main__":
         ## Get information from dataframe and create dataframe in streamlit
         df_option1 = df[df["Company"] == option1]
         df_option2 = df[df["Company"] == option2]
-        st.text("There are {} relvant ESG-Related News Content for {}".format(len(df_option1),option1))
+        st.text("There are {} relevant ESG-Related News Content for {}".format(len(df_option1),option1))
         st.text("There are {} relevant ESG-Related News Content for {}".format(len(df_option2), option2))
 
         ## st.table(df.head())
@@ -203,7 +203,7 @@ if __name__ == "__main__":
         tag_sentiment_SIA(df=df_option2)
         
         ## Generate Pie/Boxplot of the company's ESG data
-        st.subheader("Propotion of Positive vs Negative ESG-Related News Sentiments for {}".format(option1))
+        st.subheader("Proportion of Positive vs Negative ESG-Related News Sentiments for {}".format(option1))
         labels_finalscore_option1 = df_option1["Final_Score"].value_counts().keys()
         values_finalscore_option1 = df_option1["Final_Score"].value_counts()
 
